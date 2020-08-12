@@ -5,8 +5,6 @@ If you are looking for the main YAML-AST-PARSER project you can find that [here]
 
 # yaml-ast-parser
 
-[![Build Status](https://travis-ci.org/redhat-developer/yaml-ast-parser.svg?branch=master)](https://travis-ci.org/jpinkney/yaml-ast-parser)
-
 This is a fork of JS-YAML which supports parsing of YAML into AST.
 
 In additional to parsing YAML to AST, it has following features:
