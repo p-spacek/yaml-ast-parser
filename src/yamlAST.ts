@@ -54,7 +54,7 @@ export interface YAMLScalar extends YAMLNode{
 }
 
 export interface YAMLMapping extends YAMLNode{
-    key:YAMLScalar
+    key:YAMLNode
     value:YAMLNode
 }
 export interface YAMLSequence extends YAMLNode{
@@ -63,7 +63,7 @@ export interface YAMLSequence extends YAMLNode{
 export interface YamlMap extends YAMLNode{
     mappings:YAMLMapping[]
 }
-export function newMapping(key:YAMLScalar,value:YAMLNode):YAMLMapping{
+export function newMapping(key:YAMLNode,value:YAMLNode):YAMLMapping{
     var end = (value ? value.endPosition : key.endPosition + 1); //FIXME.workaround, end should be defied by position of ':'
     //console.log('key: ' + key.value + ' ' + key.startPosition + '..' + key.endPosition + ' ' + value + ' end: ' + end);
     var node = {
@@ -126,4 +126,70 @@ export function newMap(mappings?: YAMLMapping[]):YamlMap{
         kind:Kind.MAP,
         parent:null
     }
+}
+
+/**
+ * Compare nodes as it described in yaml spec https://yaml.org/spec/1.2/spec.html#equality//
+ * 
+ * @param a 
+ * @param b 
+ * 
+ * @returns true when the two nodes are equal and false otherwise
+ */
+export function isNodesEqual(a: YAMLNode, b: YAMLNode): boolean {
+
+    if(!a || !b){
+        return false;
+    }
+
+    if(a.kind !== b.kind){
+        return false;
+    }
+
+    if(a.kind === Kind.SCALAR) {
+        return (<YAMLScalar>a).value === (<YAMLScalar>b).value;
+    }
+
+    if(a.kind === Kind.SEQ) {
+        const aSeq = <YAMLSequence> a;
+        const bSeq = <YAMLSequence> b;
+        if(aSeq.items.length !== bSeq.items.length){
+            return false;
+        }
+
+        for (let i = 0; i < aSeq.items.length; i++) {
+            const elementA = aSeq.items[i];
+            const elementB = bSeq.items[i];
+            if(!isNodesEqual(elementA, elementB)){
+                return false;
+            }   
+        }
+        return true;
+    }
+
+    if(a.kind === Kind.MAP) {
+        const aMap = <YamlMap>a;
+        const bMap = <YamlMap>b;
+
+        if(aMap.mappings.length !== bMap.mappings.length){
+            return false;
+        }
+
+        for(const mapA of aMap.mappings) {
+            const keyA = mapA.key;
+            const valA = mapA.value;
+            const mapB = bMap.mappings.find(mapB => isNodesEqual(keyA, mapB.key));
+            if(mapB) {
+                if(!isNodesEqual(valA, mapB.value)){
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    return false;
 }

@@ -85,7 +85,7 @@ class DuplicateStructureBuilder extends AbstractVisitor {
         return YAML.newScalar(node.value)
     }
     visitMapping(node: YAML.YAMLMapping) {
-        return YAML.newMapping(this.visitScalar(node.key), this.accept(node.value))
+        return YAML.newMapping(this.visitScalar(<YAML.YAMLScalar>node.key), this.accept(node.value))
     }
     visitSequence(node: YAML.YAMLSequence) {
         const seq = YAML.newSeq()

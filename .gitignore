@@ -7,7 +7,6 @@
 *.iml
 .project
 .settings
-.vscode
 
 /dist/
 target/npmlist.json

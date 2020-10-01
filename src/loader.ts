@@ -401,7 +401,7 @@ function storeMappingPair(state:State, _result:ast.YamlMap, keyTag, keyNode:ast.
   //   }
   // } else {
 
-       var mapping=ast.newMapping(<ast.YAMLScalar>keyNode,valueNode);
+       var mapping=ast.newMapping(<ast.YAMLNode>keyNode,valueNode);
        mapping.parent=_result;
        keyNode.parent=mapping;
       if (valueNode!=null) {
@@ -409,7 +409,7 @@ function storeMappingPair(state:State, _result:ast.YamlMap, keyTag, keyNode:ast.
       }
     
     !state.ignoreDuplicateKeys && _result.mappings.forEach(sibling => {
-        if(sibling.key && sibling.key.value === (mapping.key && mapping.key.value)) {
+        if(ast.isNodesEqual(sibling, mapping)) {
             throwErrorFromPosition(state, mapping.key.startPosition, 'duplicate key');
             throwErrorFromPosition(state, sibling.key.startPosition, 'duplicate key');
         }

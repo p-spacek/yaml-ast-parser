@@ -4,7 +4,8 @@
   "main": "dist/src/index.js",
   "scripts": {
     "build": "rimraf dist && tsc",
-    "test": "npm run build && mocha --ui tdd dist/test"
+    "test": "npm run build && mocha --ui tdd dist/test",
+    "watch": "tsc --watch"
   },
   "dependencies": {},
   "typings": "dist/src/index.d.ts",
