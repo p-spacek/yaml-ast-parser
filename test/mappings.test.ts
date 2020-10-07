@@ -28,4 +28,54 @@ suite('YAML mappings', () => {
 
     util.testErrors(content, []);
   });
+
+  test('should report duplicate keys when keys is scalar', () => {
+    const content = 'kind: a\ncwd: b\nkind: c';
+    util.testErrors(content, [{
+      message: 'duplicate key',
+      line: 0,
+      column: 0,
+      isWarning: false
+    }, {
+      message: 'duplicate key',
+      line: 2,
+      column: 0,
+      isWarning: false
+    }]);
+  });
+
+  test('should report duplicate keys in second level map', () => {
+    const content = 'foo:\n kind: a\n cwd: b\n kind: c';
+    util.testErrors(content, [{
+      message: 'duplicate key',
+      line: 1,
+      column: 1,
+      isWarning: false
+    }, {
+      message: 'duplicate key',
+      line: 3,
+      column: 1,
+      isWarning: false
+    }]);
+  });
+
+  test('should report duplicate keys if keys is array', () => {
+    const content = '["kind"]: a\ncwd: b\n["kind"]: c';
+    util.testErrors(content, [{
+      message: 'duplicate key',
+      line: 0,
+      column: 0,
+      isWarning: false
+    }, {
+      message: 'duplicate key',
+      line: 2,
+      column: 0,
+      isWarning: false
+    }]);
+  });
+
+  test('should not produce error if key is anchor', () => {
+    const content = 'bar: b\n&kind foo: z\ndome:\n  *kind\n&kind aa: b';
+    util.testErrors(content, []);
+  });
 });
