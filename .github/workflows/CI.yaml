@@ -44,6 +44,6 @@ jobs:
 
     - name: Publish 
       if: ${{ success() && runner.os == 'Linux' && github.event_name == 'push' && github.ref == 'refs/heads/master'}}
-      run: npm publish --access public --tag next --no-git-tag-version prepatch --preid="$(git rev-parse --short HEAD)"
+      run: npm version --no-git-tag-version prepatch --preid="$(git rev-parse --short HEAD)" && npm publish --access public --tag next
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
