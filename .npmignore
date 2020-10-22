@@ -5,3 +5,6 @@
 /src/**/*.d.ts
 
 *.iml
+.github/
+.vscode/
+test/

@@ -24,7 +24,7 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
-   # Set up Node
+    # Set up Node
     - name: Use Node 12
       uses: actions/setup-node@v1
       with:
@@ -41,3 +41,9 @@ jobs:
       # Run tests
     - name: Run Test
       run: npm run test
+
+    - name: Publish 
+      if: ${{ success() && runner.os == 'Linux' && github.event_name == 'push' && github.ref == 'refs/heads/master'}}
+      run: npm publish --access public --tag next --no-git-tag-version prepatch --preid="$(git rev-parse --short HEAD)"
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
