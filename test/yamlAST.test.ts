@@ -2,8 +2,9 @@
  *  Copyright (c) Red Hat. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-import { isNodesEqual, newMap, newMapping, newScalar, newSeq } from '../src';
+import { isNodesEqual, newMap, newMapping, newScalar, newSeq, YamlMap } from '../src';
 import { expect } from 'chai';
+import { safeLoad } from './testUtil';
 
 suite('YAML AST', () => {
   suite('AST Node Equality', () => {
@@ -104,6 +105,14 @@ suite('YAML AST', () => {
         expect(result).is.false;
       });
       
+    });
+  });
+
+  suite('Flow style', () => {
+    test('should parse flow style map', () => {
+      const content = '{A: , B: b1}';
+      const result: YamlMap = safeLoad(content) as YamlMap;
+      expect(result.mappings[0].value.startPosition).to.equal(3);
     });
   });
 });

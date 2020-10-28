@@ -577,6 +577,8 @@ function readPlainScalar(state:State, nodeIndent, withinFlowCollection) {
       0x25/* % */           === ch ||
       0x40/* @ */           === ch ||
       0x60/* ` */           === ch) {
+    state.result.startPosition = state.position - 1;
+    state.result.endPosition = state.position - 1;
     return false;
   }
 
