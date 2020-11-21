@@ -7,7 +7,7 @@ suite('YAML Syntax', () => {
 		const key = '𝑘𝑒𝑦';
 		const value = '𝑣𝑎𝑙𝑢𝑒';
 		const document = YAML.safeLoad(`${key}: ${value}`);
-	
+
 		assert.deepEqual(document.mappings[0].key.value, key);
 		assert.deepEqual(document.mappings[0].value.value, value);
 	});
@@ -42,7 +42,14 @@ suite('YAML Syntax', () => {
 			message:'the stream contains non-printable characters',
 			isWarning: false
 		}]);
-	});
+  });
+
+  test('Allow emoji characters inside quoted scalars', () => {
+    const key = '"📢 - hi - 👷"';
+    const document= YAML.safeLoad(key);
+
+    assert.deepEqual(document.value, '📢 - hi - 👷');
+  });
 
 	test('Allow non-printable characters inside quoted scalars', function () {
 		const key = '"\x7f\x9f\udc00\ud800"';
