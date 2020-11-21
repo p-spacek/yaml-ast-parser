@@ -2,8 +2,8 @@
 /**
  * Created by kor on 06/05/15.
  */
-import YAMLException       = require('./exception');
-export enum Kind{
+import YAMLException = require('./exception');
+export enum Kind {
     SCALAR,
     MAPPING,
     MAP,
@@ -13,118 +13,118 @@ export enum Kind{
 }
 
 export interface YAMLDocument {
-    startPosition:number
-    endPosition:number
-    errors:YAMLException[]
+    startPosition: number
+    endPosition: number
+    errors: YAMLException[]
 }
-export interface YAMLNode extends YAMLDocument{
-    startPosition:number
-    endPosition:number
-    kind:Kind
-    anchorId?:string
-    valueObject?:any
-    parent:YAMLNode
-    errors:YAMLException[]
+export interface YAMLNode extends YAMLDocument {
+    startPosition: number
+    endPosition: number
+    kind: Kind
+    anchorId?: string
+    valueObject?: any
+    parent: YAMLNode
+    errors: YAMLException[]
     /**
      * @deprecated Inspect kind and cast to the appropriate subtype instead.
      */
-    value?:any
-
-    /**
-     * @deprecated Inspect kind and cast to the appropriate subtype instead.
-     */
-    key?:any
+    value?: any
 
     /**
      * @deprecated Inspect kind and cast to the appropriate subtype instead.
      */
-    mappings?:any
+    key?: any
+
+    /**
+     * @deprecated Inspect kind and cast to the appropriate subtype instead.
+     */
+    mappings?: any
 }
 
-export interface YAMLAnchorReference extends YAMLNode{
-    referencesAnchor:string
-    value:YAMLNode
+export interface YAMLAnchorReference extends YAMLNode {
+    referencesAnchor: string
+    value: YAMLNode
 }
-export interface YAMLScalar extends YAMLNode{
-    value:string
-    doubleQuoted?:boolean
-    singleQuoted?:boolean
-    plainScalar?:boolean
-    rawValue:string
+export interface YAMLScalar extends YAMLNode {
+    value: string
+    doubleQuoted?: boolean
+    singleQuoted?: boolean
+    plainScalar?: boolean
+    rawValue: string
 }
 
-export interface YAMLMapping extends YAMLNode{
-    key:YAMLNode
-    value:YAMLNode
+export interface YAMLMapping extends YAMLNode {
+    key: YAMLNode
+    value: YAMLNode
 }
-export interface YAMLSequence extends YAMLNode{
-    items:YAMLNode[]
+export interface YAMLSequence extends YAMLNode {
+    items: YAMLNode[]
 }
-export interface YamlMap extends YAMLNode{
-    mappings:YAMLMapping[]
+export interface YamlMap extends YAMLNode {
+    mappings: YAMLMapping[]
 }
-export function newMapping(key:YAMLNode,value:YAMLNode):YAMLMapping{
+export function newMapping(key: YAMLNode, value: YAMLNode): YAMLMapping {
     var end = (value ? value.endPosition : key.endPosition + 1); //FIXME.workaround, end should be defied by position of ':'
     //console.log('key: ' + key.value + ' ' + key.startPosition + '..' + key.endPosition + ' ' + value + ' end: ' + end);
     var node = {
-      key: key,
-      value: value,
-      startPosition: key.startPosition,
-      endPosition: end,
-      kind: Kind.MAPPING,
-      parent: null,
-      errors: []
-  };
-  return node
+        key: key,
+        value: value,
+        startPosition: key.startPosition,
+        endPosition: end,
+        kind: Kind.MAPPING,
+        parent: null,
+        errors: []
+    };
+    return node
 }
-export function newAnchorRef(key:string,start:number,end:number,value:YAMLNode):YAMLAnchorReference{
+export function newAnchorRef(key: string, start: number, end: number, value: YAMLNode): YAMLAnchorReference {
     return {
-        errors:[],
-        referencesAnchor:key,
-        value:value,
-        startPosition:start,
-        endPosition:end,
-        kind:Kind.ANCHOR_REF,
-        parent:null
+        errors: [],
+        referencesAnchor: key,
+        value: value,
+        startPosition: start,
+        endPosition: end,
+        kind: Kind.ANCHOR_REF,
+        parent: null
     }
 }
-export function newScalar(v:string|boolean|number=""):YAMLScalar{
-    const result:YAMLScalar = {
-        errors:[],
-        startPosition:-1,
-        endPosition:-1,
-        value:""+v,
-        kind:Kind.SCALAR,
-        parent:null,
-        doubleQuoted:false,
-        rawValue:""+v,
+export function newScalar(v: string | boolean | number = ""): YAMLScalar {
+    const result: YAMLScalar = {
+        errors: [],
+        startPosition: -1,
+        endPosition: -1,
+        value: "" + v,
+        kind: Kind.SCALAR,
+        parent: null,
+        doubleQuoted: false,
+        rawValue: "" + v,
     };
-    if(typeof v !== "string"){
+    if (typeof v !== "string") {
         result.valueObject = v;
     }
     return result
 }
-export function newItems():YAMLSequence{
+export function newItems(): YAMLSequence {
     return {
-        errors:[],
-        startPosition:-1,
-        endPosition:-1,
-        items:[],
-        kind:Kind.SEQ,
-        parent:null
+        errors: [],
+        startPosition: -1,
+        endPosition: -1,
+        items: [],
+        kind: Kind.SEQ,
+        parent: null
     }
 }
-export function newSeq():YAMLSequence{
+export function newSeq(): YAMLSequence {
     return newItems();
 }
-export function newMap(mappings?: YAMLMapping[]):YamlMap{
+export function newMap(mappings?: YAMLMapping[]): YamlMap {
     return {
-        errors:[],
-        startPosition:-1,
-        endPosition:-1,
+        errors: [],
+        startPosition: -1,
+        endPosition: -1,
         mappings: mappings ? mappings : [],
-        kind:Kind.MAP,
-        parent:null
+        kind: Kind.MAP,
+        parent: null
     }
 }
 
@@ -138,49 +138,49 @@ export function newMap(mappings?: YAMLMapping[]):YamlMap{
  */
 export function isNodesEqual(a: YAMLNode, b: YAMLNode): boolean {
 
-    if(!a || !b){
+    if (!a || !b) {
         return false;
     }
 
-    if(a.kind !== b.kind){
+    if (a.kind !== b.kind) {
         return false;
     }
 
-    if(a.kind === Kind.SCALAR) {
+    if (a.kind === Kind.SCALAR) {
         return (<YAMLScalar>a).value === (<YAMLScalar>b).value;
     }
 
-    if(a.kind === Kind.SEQ) {
-        const aSeq = <YAMLSequence> a;
-        const bSeq = <YAMLSequence> b;
-        if(aSeq.items.length !== bSeq.items.length){
+    if (a.kind === Kind.SEQ) {
+        const aSeq = <YAMLSequence>a;
+        const bSeq = <YAMLSequence>b;
+        if (aSeq.items.length !== bSeq.items.length) {
             return false;
         }
 
         for (let i = 0; i < aSeq.items.length; i++) {
             const elementA = aSeq.items[i];
             const elementB = bSeq.items[i];
-            if(!isNodesEqual(elementA, elementB)){
+            if (!isNodesEqual(elementA, elementB)) {
                 return false;
-            }   
+            }
         }
         return true;
     }
 
-    if(a.kind === Kind.MAP) {
+    if (a.kind === Kind.MAP) {
         const aMap = <YamlMap>a;
         const bMap = <YamlMap>b;
 
-        if(aMap.mappings.length !== bMap.mappings.length){
+        if (aMap.mappings.length !== bMap.mappings.length) {
             return false;
         }
 
-        for(const mapA of aMap.mappings) {
+        for (const mapA of aMap.mappings) {
             const keyA = mapA.key;
             const valA = mapA.value;
             const mapB = bMap.mappings.find(mapB => isNodesEqual(keyA, mapB.key));
-            if(mapB) {
-                if(!isNodesEqual(valA, mapB.value)){
+            if (mapB) {
+                if (!isNodesEqual(valA, mapB.value)) {
                     return false;
                 }
             } else {
@@ -200,4 +200,8 @@ export function isNodesEqual(a: YAMLNode, b: YAMLNode): boolean {
     }
 
     return false;
+}
+
+export function isYAMLNode(obj: any): obj is YAMLNode {
+    return obj.startPosition !== undefined && obj.endPosition !== undefined && obj.kind !== undefined;
 }

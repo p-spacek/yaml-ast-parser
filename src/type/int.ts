@@ -3,12 +3,13 @@
 'use strict';
 
 import common = require('../common');
-import {Type} from '../type';
+import { Type } from '../type';
+import ast = require('../yamlAST');
 
 function isHexCode(c) {
   return ((0x30/* 0 */ <= c) && (c <= 0x39/* 9 */)) ||
-         ((0x41/* A */ <= c) && (c <= 0x46/* F */)) ||
-         ((0x61/* a */ <= c) && (c <= 0x66/* f */));
+    ((0x41/* A */ <= c) && (c <= 0x46/* F */)) ||
+    ((0x61/* a */ <= c) && (c <= 0x66/* f */));
 }
 
 function isOctCode(c) {
@@ -19,29 +20,30 @@ function isDecCode(c) {
   return ((0x30/* 0 */ <= c) && (c <= 0x39/* 9 */));
 }
 
-function resolveYamlInteger(data) {
-  if (null === data) {
+function resolveYamlInteger(nodeOrString: ast.YAMLNode | string) {
+  const integerValue = ast.isYAMLNode(nodeOrString) ? (nodeOrString as ast.YAMLNode).value : nodeOrString;
+  if (null === integerValue) {
     return false;
   }
 
-  var max = data.length,
-      index = 0,
-      hasDigits = false,
-      ch;
+  var max = integerValue.length,
+    index = 0,
+    hasDigits = false,
+    ch;
 
   if (!max) { return false; }
 
-  ch = data[index];
+  ch = integerValue[index];
 
   // sign
   if (ch === '-' || ch === '+') {
-    ch = data[++index];
+    ch = integerValue[++index];
   }
 
   if (ch === '0') {
     // 0
     if (index + 1 === max) { return true; }
-    ch = data[++index];
+    ch = integerValue[++index];
 
     // base 2, base 8, base 16
 
@@ -50,7 +52,7 @@ function resolveYamlInteger(data) {
       index++;
 
       for (; index < max; index++) {
-        ch = data[index];
+        ch = integerValue[index];
         if (ch === '_') { continue; }
         if (ch !== '0' && ch !== '1') {
           return false;
@@ -66,9 +68,9 @@ function resolveYamlInteger(data) {
       index++;
 
       for (; index < max; index++) {
-        ch = data[index];
+        ch = integerValue[index];
         if (ch === '_') { continue; }
-        if (!isHexCode(data.charCodeAt(index))) {
+        if (!isHexCode(integerValue.charCodeAt(index))) {
           return false;
         }
         hasDigits = true;
@@ -78,9 +80,9 @@ function resolveYamlInteger(data) {
 
     // base 8
     for (; index < max; index++) {
-      ch = data[index];
+      ch = integerValue[index];
       if (ch === '_') { continue; }
-      if (!isOctCode(data.charCodeAt(index))) {
+      if (!isOctCode(integerValue.charCodeAt(index))) {
         return false;
       }
       hasDigits = true;
@@ -91,10 +93,10 @@ function resolveYamlInteger(data) {
   // base 10 (except 0) or base 60
 
   for (; index < max; index++) {
-    ch = data[index];
+    ch = integerValue[index];
     if (ch === '_') { continue; }
     if (ch === ':') { break; }
-    if (!isDecCode(data.charCodeAt(index))) {
+    if (!isDecCode(integerValue.charCodeAt(index))) {
       return false;
     }
     hasDigits = true;
@@ -106,11 +108,14 @@ function resolveYamlInteger(data) {
   if (ch !== ':') { return true; }
 
   // base60 almost not used, no needs to optimize
-  return /^(:[0-5]?[0-9])+$/.test(data.slice(index));
+  return /^(:[0-5]?[0-9])+$/.test(integerValue.slice(index));
 }
 
-function constructYamlInteger(data) {
-  var value = data, sign = 1, ch, base, digits = [];
+function constructYamlInteger(nodeOrString: ast.YAMLNode | string) {
+  if (ast.isYAMLNode(nodeOrString)) {
+    return nodeOrString;
+  }
+  var value = nodeOrString as any, sign = 1, ch, base, digits = [];
 
   if (value.indexOf('_') !== -1) {
     value = value.replace(/_/g, '');
@@ -161,7 +166,7 @@ function constructYamlInteger(data) {
 
 function isInteger(object) {
   return ('[object Number]' === Object.prototype.toString.call(object)) &&
-         (0 === object % 1 && !common.isNegativeZero(object));
+    (0 === object % 1 && !common.isNegativeZero(object));
 }
 
 export = new Type('tag:yaml.org,2002:int', {
@@ -170,16 +175,16 @@ export = new Type('tag:yaml.org,2002:int', {
   construct: constructYamlInteger,
   predicate: isInteger,
   represent: {
-    binary:      function (object) { return '0b' + object.toString(2); },
-    octal:       function (object) { return '0'  + object.toString(8); },
-    decimal:     function (object) { return        object.toString(10); },
+    binary: function (object) { return '0b' + object.toString(2); },
+    octal: function (object) { return '0' + object.toString(8); },
+    decimal: function (object) { return object.toString(10); },
     hexadecimal: function (object) { return '0x' + object.toString(16).toUpperCase(); }
   },
   defaultStyle: 'decimal',
   styleAliases: {
-    binary:      [ 2,  'bin' ],
-    octal:       [ 8,  'oct' ],
-    decimal:     [ 10, 'dec' ],
-    hexadecimal: [ 16, 'hex' ]
+    binary: [2, 'bin'],
+    octal: [8, 'oct'],
+    decimal: [10, 'dec'],
+    hexadecimal: [16, 'hex']
   }
 });

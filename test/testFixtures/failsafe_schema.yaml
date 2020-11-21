@@ -1,0 +1,18 @@
+Block-map: !!map
+  Clark : Evans
+  Ingy  : döt Net
+  Oren  : Ben-Kiki
+
+Flow-map: !!map { Clark: Evans, Ingy: döt Net, Oren: Ben-Kiki }
+
+Block-seq: !!seq
+- Clark Evans
+- Ingy döt Net
+- Oren Ben-Kiki
+
+Flow-seq: !!seq [ Clark Evans, Ingy döt Net, Oren Ben-Kiki ]
+
+Block-style: !!str |-
+  String: just a theory.
+
+Flow-style: !!str "String: just a theory."

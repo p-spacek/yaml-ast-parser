@@ -1,0 +1,15 @@
+YAML: !!bool true
+Pluto: !!bool false
+
+negativeInt: !!int -12
+zeroInt: !!int 0
+positiveInt: !!int 34
+
+negativeFloat: !!float -1
+zeroFloat: !!float 0
+positiveFloat: !!float 2.3e4
+infinityFloat: !!float .inf
+notFloat: !!float .nan
+
+!!null null: value for null key
+key with null value: !!null null
