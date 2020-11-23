@@ -13,7 +13,7 @@ var YAML_FLOAT_PATTERN = new RegExp(
   '|^\.(nan|NaN|NAN)$');
 
 function resolveYamlFloat(nodeOrString: ast.YAMLNode | string) {
-  const floatValue = typeof (nodeOrString) === 'string' ? nodeOrString : (nodeOrString as ast.YAMLNode).value;
+  const floatValue = ast.isYAMLNode(nodeOrString) ? (nodeOrString as ast.YAMLNode).value : nodeOrString;
   if (null === floatValue) {
     return false;
   }
