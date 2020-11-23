@@ -1,26 +1,32 @@
 
 
-declare function require(n:string):any
+declare function require(n: string): any
 
 'use strict';
 
-import {Type} from '../type';
+import { Type } from '../type';
+import ast = require('../yamlAST');
 
-function resolveYamlBoolean(data) {
-  if (null === data) {
+function resolveYamlBoolean(nodeOrString: ast.YAMLNode | string) {
+  const booleanValue = ast.isYAMLNode(nodeOrString) ? nodeOrString.value : nodeOrString;
+  if (null === booleanValue) {
     return false;
   }
 
-  var max = data.length;
+  var max = booleanValue.length;
 
-  return (max === 4 && (data === 'true' || data === 'True' || data === 'TRUE')) ||
-         (max === 5 && (data === 'false' || data === 'False' || data === 'FALSE'));
+  return (max === 4 && (booleanValue === 'true' || booleanValue === 'True' || booleanValue === 'TRUE')) ||
+    (max === 5 && (booleanValue === 'false' || booleanValue === 'False' || booleanValue === 'FALSE'));
 }
 
-function constructYamlBoolean(data) {
-  return data === 'true' ||
-         data === 'True' ||
-         data === 'TRUE';
+function constructYamlBoolean(nodeOrString: ast.YAMLNode | string) {
+  if (ast.isYAMLNode(nodeOrString)) {
+    // YAML Boolean is already constructed
+    return nodeOrString;
+  }
+  return nodeOrString === 'true' ||
+    nodeOrString === 'True' ||
+    nodeOrString === 'TRUE';
 }
 
 function isBoolean(object) {
