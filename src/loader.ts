@@ -1135,8 +1135,13 @@ function readBlockSequence(state:State, nodeIndent) {
     state.tag = _tag;
     state.anchor = _anchor;
     state.kind = 'sequence';
+    var endPosition = state.position;
+    if(state.lineIndent < nodeIndent && state.result && state.result.endPosition){
+      //use last node endPosition - with no empty lines
+        endPosition = state.result.endPosition;
+    }
     state.result = _result;
-    _result.endPosition=state.position;
+    _result.endPosition=endPosition;
     return true;
   }
   return false;
